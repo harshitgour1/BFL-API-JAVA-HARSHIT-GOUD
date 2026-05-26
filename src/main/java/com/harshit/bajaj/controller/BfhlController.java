@@ -10,12 +10,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 /**
- * REST controller exposing the /bfhl endpoint.
- *
- * <p>POST /bfhl — accepts a mixed array of strings and returns categorised data.
+ * REST controller exposing /bfhl and /health endpoints.
  */
 @RestController
-@RequestMapping("/bfhl")
 public class BfhlController {
 
     private final IBfhlService bfhlService;
@@ -25,19 +22,25 @@ public class BfhlController {
     }
 
     /**
-     * POST /bfhl
-     *
-     * <p>Processes the input array and returns:
-     * <ul>
-     *   <li>is_success, user_id, email, roll_number</li>
-     *   <li>even_numbers, odd_numbers, alphabets, special_characters</li>
-     *   <li>sum, concat_string</li>
-     * </ul>
+     * GET /health — returns service health status.
+     */
+    @GetMapping("/health")
+    public ResponseEntity<Map<String, Object>> health() {
+        return ResponseEntity.ok(Map.of(
+                "status", "UP",
+                "user_id", "harshit_goud_29092005",
+                "email", "harshitgoud230779@acropolis.in",
+                "roll_number", "0827IT231051"
+        ));
+    }
+
+    /**
+     * POST /bfhl — processes the input array and returns categorised data.
      *
      * @param request the request body containing {@code data} array
      * @return 200 OK with the populated response DTO
      */
-    @PostMapping
+    @PostMapping("/bfhl")
     public ResponseEntity<BfhlResponseDto> handlePost(@RequestBody BfhlRequestDto request) {
         BfhlResponseDto response = bfhlService.process(request);
         return ResponseEntity.ok(response);
