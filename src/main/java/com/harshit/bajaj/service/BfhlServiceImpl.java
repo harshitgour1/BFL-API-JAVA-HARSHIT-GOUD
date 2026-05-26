@@ -36,24 +36,31 @@ public class BfhlServiceImpl implements IBfhlService {
 
     @Override
     public BfhlResponseDto process(BfhlRequestDto request) {
-        List<String> data = request.getData();
+        List<String> data = (request == null || request.getData() == null) 
+                ? Collections.emptyList() 
+                : request.getData();
 
         List<String> evenNumbers       = new ArrayList<>();
         List<String> oddNumbers        = new ArrayList<>();
         List<String> alphabets         = new ArrayList<>();
         List<String> specialCharacters = new ArrayList<>();
-        long         numericSum        = 0;
+        java.math.BigInteger numericSum = java.math.BigInteger.ZERO;
 
         // Individual alphabetical characters collected in input order for concat_string
         List<Character> allAlphaChars = new ArrayList<>();
 
         for (String element : data) {
+            if (element == null) {
+                continue;
+            }
+
             if (isNumeric(element)) {
                 // --- Numeric element ---
-                long value = Long.parseLong(element);
-                numericSum += value;
+                java.math.BigInteger value = new java.math.BigInteger(element);
+                numericSum = numericSum.add(value);
 
-                if (value % 2 == 0) {
+                // Check if even (value mod 2 == 0)
+                if (value.mod(java.math.BigInteger.TWO).equals(java.math.BigInteger.ZERO)) {
                     evenNumbers.add(element);
                 } else {
                     oddNumbers.add(element);
@@ -73,8 +80,6 @@ public class BfhlServiceImpl implements IBfhlService {
                 specialCharacters.add(element);
 
                 // Collect any alphabetical chars embedded in special elements
-                // (spec examples show special chars are standalone symbols, but
-                //  we still scan each char for correctness)
                 for (char c : element.toCharArray()) {
                     if (Character.isLetter(c)) {
                         allAlphaChars.add(c);
@@ -94,10 +99,11 @@ public class BfhlServiceImpl implements IBfhlService {
                 .oddNumbers(oddNumbers)
                 .alphabets(alphabets)
                 .specialCharacters(specialCharacters)
-                .sum(String.valueOf(numericSum))
+                .sum(numericSum.toString())
                 .concatString(concatString)
                 .build();
     }
+
 
     // -----------------------------------------------------------------------
     // Private helpers
